@@ -1,5 +1,6 @@
 package com.agb.github_user_app.presentation.navigation
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.BottomAppBar
@@ -57,13 +58,17 @@ fun BottomNavigation(modifier: Modifier = Modifier,navController: NavController)
                 ),
                 selected = backStackEntry.isRouteSelected(item.route::class),
                 onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    Log.d("BottomNavigation", "BottomNavigation: ${navController.graph.startDestinationRoute}")
+                    navController.graph.startDestinationRoute?.let {
+                        navController.navigate(item.route) {
+                            popUpTo(Screens.HomeScreen) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
+
                 },
                 alwaysShowLabel = true,
                 label = {

@@ -12,8 +12,9 @@ sealed class Screens(){
     object HomeScreen: Screens()
 
     @Serializable
-    object DetailScreen: Screens()
+    data class DetailScreen(val id:Int): Screens()
 
     @Serializable
     object ProfileScreen : Screens()
+
 }
