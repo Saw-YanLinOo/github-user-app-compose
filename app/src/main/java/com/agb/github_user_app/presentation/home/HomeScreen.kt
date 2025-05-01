@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,12 +40,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
-import com.agb.github_user_app.data.model.User
-import com.agb.github_user_app.data.model.sampleUsers
+import com.agb.github_user_app.data.model.UserModel
 import com.agb.github_user_app.presentation.navigation.Screens
 import com.agb.github_user_app.ui.theme.LocalCustomColorsPalette
 
@@ -56,18 +57,19 @@ fun NavGraphBuilder.homeScreen(
     composable<Screens.HomeScreen> {
         HomeScreen(
             modifier = modifier,
-            goToDetail = { userId ->
-                navController.navigate(Screens.DetailScreen(userId))
+            goToDetail = { user ->
+                navController.navigate(Screens.DetailScreen(user.id?:0,user.login?:""))
             }
         )
     }
 }
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, goToDetail: (Int) -> Unit = {}) {
+fun HomeScreen(modifier: Modifier = Modifier, goToDetail: (UserModel) -> Unit = {}) {
 
-    val categories = listOf("Flutter", "Programming", "React", "Vue", "Android")
-    val userList = sampleUsers
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val categories = listOf("HTML","CSS","JavaScript","Go","Kotlin","Swift","Flutter", "Programming", "React", "Vue", "Android","IOS")
+    val userList = homeViewModel.user.collectAsState().value
 
     Scaffold { innerPadding ->
         Column(
@@ -85,7 +87,10 @@ fun HomeScreen(modifier: Modifier = Modifier, goToDetail: (Int) -> Unit = {}) {
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
                 items(categories) { category ->
-                    AssistChip(onClick = {}, label = {Text(category)})
+                    AssistChip(onClick = {
+                        // Handle category click
+                        homeViewModel.getUsersByCategory(category)
+                    }, label = {Text(category)})
                 }
             }
 
@@ -105,7 +110,7 @@ fun HomeScreen(modifier: Modifier = Modifier, goToDetail: (Int) -> Unit = {}) {
                 items(userList) { user ->
                     UserCard(user = user,
                         onClick = {
-                            goToDetail(user.id)
+                            goToDetail(user)
                         }
                     )
                 }
@@ -116,7 +121,7 @@ fun HomeScreen(modifier: Modifier = Modifier, goToDetail: (Int) -> Unit = {}) {
 
 
 @Composable
-fun UserCard(user: User,onClick: () -> Unit = {}) {
+fun UserCard(user: UserModel,onClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -127,7 +132,7 @@ fun UserCard(user: User,onClick: () -> Unit = {}) {
     ) {
         AsyncImage(
             model = user.avatarUrl,
-            contentDescription = user.username,
+            contentDescription = user.login,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
@@ -141,7 +146,7 @@ fun UserCard(user: User,onClick: () -> Unit = {}) {
                 .padding(8.dp)
         ) {
             Text(
-                text = user.name,
+                text = user.login ?: "",
                 color = Color.White,
                 style = MaterialTheme.typography.bodyMedium
             )

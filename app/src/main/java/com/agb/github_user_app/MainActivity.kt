@@ -6,10 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import com.agb.github_user_app.ui.theme.GithubuserappTheme
 import androidx.navigation.compose.rememberNavController
 import com.agb.github_user_app.presentation.navigation.SetUpNavGraph
+import com.agb.github_user_app.ui.theme.GithubuserappTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

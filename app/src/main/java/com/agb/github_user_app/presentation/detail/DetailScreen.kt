@@ -1,5 +1,6 @@
 package com.agb.github_user_app.presentation.detail
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,13 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import coil.compose.AsyncImage
 import com.agb.github_user_app.R
-import com.agb.github_user_app.data.model.sampleUsers
+import com.agb.github_user_app.data.model.UserModel
 import com.agb.github_user_app.presentation.navigation.Screens
 
 
@@ -52,24 +56,33 @@ fun NavGraphBuilder.detailScreen(
 
         DetailScreen(
             id = detail.id,
+            login = detail.login,
             onBackClick = {
                 navController.popBackStack()
             },
-            onProfileClick = {
-//                navController.navigate(Screens.ProfileScreen)
+            onProfileClick = { user->
+                // open profile link with webview
+                // or open in browser
+                val profileUrl = user.htmlUrl ?: return@DetailScreen
+                val intent = Intent(Intent.ACTION_VIEW, profileUrl.toUri())
+                navController.context.startActivity(intent)
+
             }
         )
     }
 }
+
 @Composable
 fun DetailScreen(
-    id: Int = 1,
+    id: Long = 1,
+    login:String = "",
     onBackClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: (UserModel) -> Unit = {}
 ) {
 
-    // Dummy data – you can fetch real info based on username
-    val user = sampleUsers.find { it.id == id }
+    val detailViewModel = hiltViewModel<DetailViewModel>()
+    val user = detailViewModel.user.collectAsState().value
+//    val user = sampleUsers.firstOrNull { it.id == id }
 
     if (user == null) {
         Text("User not found", modifier = Modifier.padding(16.dp))
@@ -97,7 +110,7 @@ fun DetailScreen(
 
         AsyncImage(
             model = user.avatarUrl,
-            contentDescription = user.username,
+            contentDescription = user.login,
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape),
@@ -106,21 +119,23 @@ fun DetailScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        Text(user.username, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-        Text(user.role, fontSize = 18.sp, fontWeight = FontWeight.Normal)
+        Text(user.login?:"", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(4.dp))
+
+        Text(user.name?:"", fontSize = 24.sp, fontWeight = FontWeight.Normal)
 
         Spacer(Modifier.height(24.dp))
 
         // Follower and Following section
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             StatBox(
-                count = user.followers,
+                count = user.followers?:0,
                 label = "followers",
                 backgroundColor = Color(0xFFF272B5),
                 icon = painterResource(id = R.drawable.ic_visibility)
             )
             StatBox(
-                count = user.following,
+                count = user.following?:0,
                 label = "following",
                 backgroundColor = Color(0xFFB2EBF2),
                 icon = painterResource(id = R.drawable.ic_military_tech)
@@ -131,7 +146,7 @@ fun DetailScreen(
 
         // Go To Profile Button
         Button(
-            onClick = onProfileClick,
+            onClick = { onProfileClick(user) },
             shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -147,7 +162,7 @@ fun DetailScreen(
 }
 
 @Composable
-fun StatBox(count: Int, label: String, backgroundColor: Color, icon: Painter) {
+fun StatBox(count: Long, label: String, backgroundColor: Color, icon: Painter) {
     Column(
         modifier = Modifier
             .size(width = 120.dp, height = 160.dp)

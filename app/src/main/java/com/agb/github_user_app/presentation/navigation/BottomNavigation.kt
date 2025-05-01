@@ -2,36 +2,28 @@ package com.agb.github_user_app.presentation.navigation
 
 import android.util.Log
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.agb.github_user_app.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.agb.github_user_app.ui.theme.CustomColors
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.agb.github_user_app.R
 import com.agb.github_user_app.ui.theme.LocalCustomColorsPalette
 import kotlin.reflect.KClass
 
 @Composable
 fun BottomNavigation(modifier: Modifier = Modifier,navController: NavController) {
-
-
 
     val backStackEntry by navController.currentBackStackEntryAsState()
 
